@@ -12,6 +12,8 @@ permissions:
 
 jobs:
   add_tag:
+    # PRがマージされたときのみ実行
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
