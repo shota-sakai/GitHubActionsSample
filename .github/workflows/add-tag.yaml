@@ -1,0 +1,49 @@
+name: add_tag
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  add_tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # 前回のリリースタグを取得する
+      - name: Get previous tag
+        id: pre_tag
+        run: |
+          echo "pre_tag=$(curl -H 'Accept: application/vnd.github.v3+json' -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)" >> $GITHUB_OUTPUT
+
+      # - name: Extract version and add tag
+      #   uses: actions/github-script@v7
+      #   with:
+      #     script: |
+      #       const { execSync } = require('child_process');
+
+      #       // 最新のマージメッセージの取得
+      #       const mergeCommit = execSync('git log --merges -1 --pretty=format:"%s"').toString().trim();
+      #       console.log(`Merge commit message: ${mergeCommit}`);
+
+      #       // バージョンの抽出
+      #       const versionMatch = mergeCommit.match(/Merge pull request .* from .*release\/ver(.*)/);
+      #       if (!versionMatch) {
+      #         throw new Error('No version extracted.');
+      #       }
+      #       const version = versionMatch[1];
+      #       console.log(`version: ${version}`);
+
+      #       // タグ付け
+      #       execSync(`git tag ver${version} ${process.env.GITHUB_SHA}`);
+      #       execSync(`git push origin ver${version}`);
