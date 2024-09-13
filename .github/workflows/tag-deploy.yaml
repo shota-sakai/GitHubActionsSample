@@ -2,10 +2,6 @@ name: tag_deploy
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Enter the version (tag) to deploy'
-        required: true
 
 jobs:
   add_tag:
@@ -21,3 +17,5 @@ jobs:
       - name: test
         run: |
           echo "test"
+          echo ${{ github.ref }}
+          echo ${{ github.sha }}          
