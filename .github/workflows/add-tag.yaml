@@ -1,9 +1,7 @@
 name: add_tag
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
     branches:
       - main
 
@@ -12,8 +10,6 @@ permissions:
 
 jobs:
   add_tag:
-    # PRがマージされたときのみ実行
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     env:
