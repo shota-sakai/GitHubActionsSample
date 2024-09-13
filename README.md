@@ -1,1 +1,2 @@
 # GitHubActionsSample
+GitHubActions検証用リポジトリ
