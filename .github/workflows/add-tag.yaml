@@ -32,8 +32,8 @@ jobs:
           prefix="release"
           today=$(date +'%Y.%m.%d')
           echo $today
-          pre_release_date=$(echo ${{ steps.pre_tag.outputs.pre_tag }} | awk -F'-' '{print $1}')
-          pre_release_count=$(echo ${{ steps.pre_tag.outputs.pre_tag }} | awk -F'-' '{print $2}')
+          pre_release_date=$(echo ${{ steps.pre_tag.outputs.pre_tag }} | awk -F'-' '{print $2}')
+          pre_release_count=$(echo ${{ steps.pre_tag.outputs.pre_tag }} | awk -F'-' '{print $3}')
           echo $pre_release_date
           if [[ ! $pre_release_date = $today ]]; then
             pre_release_count=100
