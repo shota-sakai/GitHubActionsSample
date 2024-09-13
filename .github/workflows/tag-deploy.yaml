@@ -1,0 +1,23 @@
+name: tag_deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Enter the version (tag) to deploy'
+        required: true
+
+jobs:
+  add_tag:
+    runs-on: ubuntu-latest
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 前回のリリースタグを取得する
+      - name: test
+        run: |
+          echo "test"
