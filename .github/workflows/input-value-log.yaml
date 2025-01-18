@@ -3,15 +3,19 @@ name: input-value-log
 on:
   workflow_dispatch:
     inputs:
-      value1:
-        required: true
-        type: number
-      value2:
-        required: true
-        type: string
-      value3:
-        required: true
-        type: boolean
+      deploy:
+        type: choice
+        description: Deploy target
+        options:
+          - yes
+          - no
+      environment:
+        type: choice
+        description: Deploy target
+        options:
+          - dev1
+          - dev2
+          - prod
 
 permissions:
   contents: write
