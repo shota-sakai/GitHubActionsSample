@@ -33,4 +33,4 @@ jobs:
 
       - name: input Value Log
         run: |
-          echo '::notice title=タイトル::テスト'
+          echo "::notice title=inputs指定::deploy=${{ inputs.deploy }}、environment=${{ inputs.environment }}"
