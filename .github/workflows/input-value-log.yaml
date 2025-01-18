@@ -33,4 +33,4 @@ jobs:
 
       - name: input Value Log
         run: |
-          echo "::notice title=inputs values::deploy=${{ inputs.deploy }}, environment=${{ inputs.environment }}"
+          echo "::notice title=inputs value::deploy=${{ inputs.deploy }}, environment=${{ inputs.environment }}"
