@@ -1,0 +1,25 @@
+name: input-value-log
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  input-value-log:
+    runs-on: ubuntu-latest
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TZ: "Asia/Tokyo"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: input Value Log
+        run: |
+          echo '::notice title=テスト'
