@@ -7,8 +7,8 @@ on:
         type: choice
         description: Deploy target
         options:
-          - yes
-          - no
+          - "yes"
+          - "no"
       environment:
         type: choice
         description: Deploy target
