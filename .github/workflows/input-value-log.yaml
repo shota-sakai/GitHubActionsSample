@@ -22,4 +22,4 @@ jobs:
 
       - name: input Value Log
         run: |
-          echo '::notice title=テスト'
+          echo '::notice title=タイトル::テスト'
