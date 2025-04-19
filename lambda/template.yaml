@@ -20,11 +20,13 @@ Globals:
 Resources:
   LambdaBucketSS: # S3 バケットの論理名
     Type: AWS::S3::Bucket # S3 バケットのリソースタイプ
-    BucketName: test-lambda-deploy-sss
+    Properties:
+      BucketName: test-lambda-deploy-sss
     # BucketName を指定しないことで、CloudFormation により一意な名前が自動生成される
   TestBucket: # S3 バケットの論理名
     Type: AWS::S3::Bucket # S3 バケットのリソースタイプ
-    BucketName: test-lambda-deploy-ss
+    Properties:
+      BucketName: test-lambda-deploy-ss
     # BucketName を指定しないことで、CloudFormation により一意な名前が自動生成される
 
   HelloWorldFunction: # 最初の Lambda 関数の論理 ID
