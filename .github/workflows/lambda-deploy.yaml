@@ -33,6 +33,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-1
 
+      - name: Install Python dependencies
+        run: |
+          pip install -r lambda/layers/python/requirements.txt -t lambda/layers/python/
+          ls -la lambda/layers/python/
+
       - name: Build SAM application
         run: sam build --template-file ./lambda/template.yaml
 
