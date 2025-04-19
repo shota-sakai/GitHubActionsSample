@@ -1,0 +1,56 @@
+name: Deploy Lambda
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      function_name:
+        description: "Lambda function to deploy (leave blank for all)"
+        required: false
+        default: ""
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install AWS SAM CLI
+        run: |
+          pip install aws-sam-cli
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: Build SAM application
+        run: sam build --template-file ./lambda/template.yaml
+
+      - name: Deploy SAM application
+        run: |
+          if [ "${{ github.event.inputs.function_name }}" = "" ]; then
+            echo "Deploying all functions..."
+            sam deploy \
+              --no-confirm-changeset \
+              --no-fail-on-empty-changeset \
+              --capabilities CAPABILITY_NAMED_IAM \
+              --stack-name my-test-app \
+              --s3-bucket sam-artifacts-bucket-ss
+          else
+            echo "Deploying single function: ${{ github.event.inputs.function_name }}"
+            sam deploy \
+              --no-confirm-changeset \
+              --no-fail-on-empty-changeset \
+              --capabilities CAPABILITY_NAMED_IAM \
+              --parameter-overrides FunctionName=${{ github.event.inputs.function_name }}
+          fi
