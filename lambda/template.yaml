@@ -17,12 +17,12 @@ Resources:
     Type: AWS::S3::Bucket # S3 バケットのリソースタイプ
     # BucketName を指定しないことで、CloudFormation により一意な名前が自動生成される
 
-  HelloWorldFunction: # Lambda 関数の論理 ID
+  HelloWorldFunction: # 最初の Lambda 関数の論理 ID
     Type: AWS::Serverless::Function # SAM における Lambda 関数定義
     Properties:
       FunctionName: HelloWorldFunction # 実際に作成される Lambda 関数名
       Handler: app.lambda_handler # Lambda のエントリポイント（app.py の lambda_handler 関数）
-      CodeUri: hello_world/ # 関数コードを格納しているディレクトリのパス
+      CodeUri: function/hello_world/ # 関数コードを格納しているディレクトリのパス
       Role: !GetAtt LambdaExecutionRole.Arn # Lambda 関数に割り当てる IAM ロールの ARN
       Events: # トリガーイベントの定義
         S3PutEvent: # S3 PUT イベントの論理名
@@ -33,12 +33,31 @@ Resources:
       Layers:
         - !Ref PythonLibrariesLayer # 外部ライブラリ（Layer）を Lambda に組み込む
 
+  HelloWorldFunction2: # 2つ目の Lambda 関数の論理 ID
+    Type: AWS::Serverless::Function # SAM における Lambda 関数定義
+    Properties:
+      FunctionName: eventbridge-func # 実際に作成される Lambda 関数名
+      Handler: app.lambda_handler # Lambda のエントリポイント（app.py の lambda_handler 関数）
+      CodeUri: function/eventbridge-func/ # 関数コードを格納しているディレクトリのパス（別ディレクトリにしてください）
+      Role: !GetAtt LambdaExecutionRole.Arn # 同じ IAM ロールを再利用
+      Events: # トリガーイベントの定義
+        EventBridgeEvent: # EventBridge イベントの論理名
+          Type: EventBridgeRule # EventBridge をトリガーとして設定
+          Properties:
+            RuleName: lambdaEventRule
+            EventBusName: TestEventBus
+            Pattern: # マッチするイベントパターン
+              source:
+                - "custom.event.source" # カスタムイベントのソース
+      Layers:
+        - !Ref PythonLibrariesLayer # 同じレイヤーを使用
+
   PythonLibrariesLayer: # Lambda レイヤーの論理 ID
     Type: AWS::Serverless::LayerVersion # SAM におけるレイヤーの定義
     Properties:
       LayerName: python-libraries # 実際のレイヤー名
       Description: Common Python libraries for Lambda functions. # 説明文
-      ContentUri: ../layers/ # レイヤー用のライブラリを格納したディレクトリ（python/ ディレクトリを含む必要あり）
+      ContentUri: layers/ # レイヤー用のライブラリを格納したディレクトリ（python/ ディレクトリを含む必要あり）
       CompatibleRuntimes:
         - python3.13 # このレイヤーを使える Python ランタイムのバージョン
       RetentionPolicy: Retain # スタック削除時にこのレイヤーを保持する設定
