@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: "2010-09-09" # CloudFormation テンプレートのバージョン（固定）
+
+Transform: AWS::Serverless-2016-10-31 # AWS SAM テンプレートであることを示す
+
+Description: >
+  サンプルの SAM テンプレート。HelloWorld Lambda 関数とレイヤーをデプロイします。
+
+Globals:
+  Function:
+    Timeout: 10 # Lambda 関数の最大実行時間（秒）
+    Runtime: python3.13 # 使用する Python ランタイムバージョン
+    Architectures:
+      - x86_64 # Lambda のアーキテクチャ（x86_64 もしくは arm64）
+
+Resources:
+  LambdaBucketSS: # S3 バケットの論理名
+    Type: AWS::S3::Bucket # S3 バケットのリソースタイプ
+    # BucketName を指定しないことで、CloudFormation により一意な名前が自動生成される
+
+  HelloWorldFunction: # Lambda 関数の論理 ID
+    Type: AWS::Serverless::Function # SAM における Lambda 関数定義
+    Properties:
+      FunctionName: HelloWorldFunction # 実際に作成される Lambda 関数名
+      Handler: app.lambda_handler # Lambda のエントリポイント（app.py の lambda_handler 関数）
+      CodeUri: hello_world/ # 関数コードを格納しているディレクトリのパス
+      Role: !GetAtt LambdaExecutionRole.Arn # Lambda 関数に割り当てる IAM ロールの ARN
+      Events: # トリガーイベントの定義
+        S3PutEvent: # S3 PUT イベントの論理名
+          Type: S3 # イベントタイプが S3 であることを指定
+          Properties:
+            Bucket: !Ref LambdaBucketSS # トリガー元の S3 バケット（上で定義したもの）
+            Events: s3:ObjectCreated:Put # オブジェクトの PUT イベントに反応
+      Layers:
+        - !Ref PythonLibrariesLayer # 外部ライブラリ（Layer）を Lambda に組み込む
+
+  PythonLibrariesLayer: # Lambda レイヤーの論理 ID
+    Type: AWS::Serverless::LayerVersion # SAM におけるレイヤーの定義
+    Properties:
+      LayerName: python-libraries # 実際のレイヤー名
+      Description: Common Python libraries for Lambda functions. # 説明文
+      ContentUri: ../layers/ # レイヤー用のライブラリを格納したディレクトリ（python/ ディレクトリを含む必要あり）
+      CompatibleRuntimes:
+        - python3.13 # このレイヤーを使える Python ランタイムのバージョン
+      RetentionPolicy: Retain # スタック削除時にこのレイヤーを保持する設定
+
+  LambdaExecutionRole: # Lambda 関数に付与する IAM ロールの論理 ID
+    Type: AWS::IAM::Role # IAM ロールのリソースタイプ
+    Properties:
+      RoleName: lambda-basic-execution-role # IAM ロールの名前（変更可）
+      AssumeRolePolicyDocument: # Lambda がこのロールを使用できるようにする信頼ポリシー
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow # 許可
+            Principal:
+              Service: lambda.amazonaws.com # Lambda サービスからのアクセスを許可
+            Action: sts:AssumeRole # ロール引き受けを許可
+      Policies: # ロールにアタッチするインラインポリシーの一覧
+        - PolicyName: LambdaBasicExecution # ポリシー名
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow # 許可
+                Action: # CloudWatch Logs へのログ出力を許可
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:* # 任意の CloudWatch Logs リソースを対象
