@@ -50,7 +50,8 @@ jobs:
               --no-fail-on-empty-changeset \
               --capabilities CAPABILITY_NAMED_IAM \
               --stack-name my-test-app \
-              --s3-bucket sam-artifacts-bucket-ss
+              --s3-bucket sam-artifacts-bucket-ss \
+              --parameter-overrides environment=dev
           else
             echo "Deploying single function: ${{ github.event.inputs.function_name }}"
             sam deploy \
