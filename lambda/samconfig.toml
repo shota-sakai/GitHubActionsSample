@@ -1,0 +1,11 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "my-test-app"
+resolve_s3 = true
+s3_prefix = "my-test-app"
+s3_bucket = "sam-artifacts-bucket-ss"
+region = "ap-northeast-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+image_repositories = []
