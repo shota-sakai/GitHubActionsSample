@@ -5,9 +5,14 @@ on:
   workflow_dispatch:
     inputs:
       function_name:
-        description: "Lambda function to deploy (leave blank for all)"
         required: false
-        default: ""
+        type: choice
+        options:
+          - all
+          - HelloWorldFunction
+          - eventbridge-func
+        default: all
+        description: "Lambda function to deploy (leave blank for all)"
 
 jobs:
   deploy:
@@ -43,19 +48,22 @@ jobs:
 
       - name: Deploy SAM application
         run: |
-          if [ "${{ github.event.inputs.function_name }}" = "" ]; then
+          if [ "${{ github.event.inputs.function_name }}" = "all" ]; then
             echo "Deploying all functions..."
             sam deploy \
               --no-confirm-changeset \
               --no-fail-on-empty-changeset \
               --capabilities CAPABILITY_NAMED_IAM \
               --stack-name my-test-app \
-              --s3-bucket sam-artifacts-bucket-ss
+              --s3-bucket sam-artifacts-bucket-ss \
+              --parameter-overrides environment=dev
           else
             echo "Deploying single function: ${{ github.event.inputs.function_name }}"
             sam deploy \
               --no-confirm-changeset \
               --no-fail-on-empty-changeset \
+              --stack-name my-test-app \
+              --s3-bucket sam-artifacts-bucket-ss \
               --capabilities CAPABILITY_NAMED_IAM \
               --parameter-overrides FunctionName=${{ github.event.inputs.function_name }}
           fi
