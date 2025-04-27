@@ -62,6 +62,8 @@ jobs:
             sam deploy \
               --no-confirm-changeset \
               --no-fail-on-empty-changeset \
+              --stack-name my-test-app \
+              --s3-bucket sam-artifacts-bucket-ss \
               --capabilities CAPABILITY_NAMED_IAM \
               --parameter-overrides FunctionName=${{ github.event.inputs.function_name }}
           fi
