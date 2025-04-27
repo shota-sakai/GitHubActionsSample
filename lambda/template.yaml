@@ -60,7 +60,7 @@ Resources:
             EventBusName: TestEventBus
             Pattern: # マッチするイベントパターン
               source:
-                - "custom.event.source" # カスタムイベントのソース
+                - "test.custom.event.source" # カスタムイベントのソース
       Layers:
         - !Ref PythonLibrariesLayer # 同じレイヤーを使用
 
