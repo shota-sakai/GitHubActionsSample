@@ -71,7 +71,9 @@ Resources:
         Statement:
           - Effect: Allow # 許可
             Principal:
-              Service: lambda.amazonaws.com # Lambda サービスからのアクセスを許可
+              Service:
+                - lambda.amazonaws.com # Lambda サービスからのアクセスを許可
+                - scheduler.amazonaws.com
             Action: sts:AssumeRole # ロール引き受けを許可
       Policies: # ロールにアタッチするインラインポリシーの一覧
         - PolicyName: LambdaBasicExecution # ポリシー名
@@ -84,3 +86,35 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: arn:aws:logs:*:*:* # 任意の CloudWatch Logs リソースを対象
+
+  ScheduleGroup:
+    Type: AWS::Scheduler::ScheduleGroup
+    Properties:
+      Name: "test-test"
+  EventBridgeSchedulerFunction: # 2つ目の Lambda 関数の論理 ID
+    Type: AWS::Serverless::Function # SAM における Lambda 関数定義
+    Properties:
+      FunctionName: eventBridgeScheduler-func # 実際に作成される Lambda 関数名
+      Handler: app.lambda_handler # Lambda のエントリポイント（app.py の lambda_handler 関数）
+      CodeUri: function/eventbridge-func/ # 関数コードを格納しているディレクトリのパス（別ディレクトリにしてください）
+      Role: !GetAtt LambdaExecutionRole.Arn # 同じ IAM ロールを再利用
+      # Events: # トリガーイベントの定義
+      #   Schedule:
+      #     Type: ScheduleV2
+      #     Properties:
+      #       Name: "test-scheduler"
+      #       ScheduleExpression: "cron(0 * * * ? *)"
+      #       State: "DISABLED"
+      #       GroupName: !Ref ScheduleGroup
+  TestEventBridgeScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Name: "test-scheduler2"
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      ScheduleExpression: "cron(0 * * * ? *)"
+      State: "DISABLED"
+      Target:
+        Arn: !GetAtt EventBridgeSchedulerFunction.Arn
+        RoleArn: !GetAtt LambdaExecutionRole.Arn
+      GroupName: !Ref ScheduleGroup
